@@ -1,7 +1,8 @@
+from .base_service import UsbBaseDeviceService
 from .protocol import (
+    UsbBaseDeviceInfo,
+    UsbBaseDeviceProtocol,
     UsbDeviceId,
-    UsbDeviceInfo,
-    UsbDeviceProtocol,
     UsbStorageDeviceInfo,
     UsbStorageDeviceProtocol,
     UsbVolumeInfo,
@@ -9,8 +10,9 @@ from .protocol import (
 
 __all__ = [
     "UsbDeviceId",
-    "UsbDeviceInfo",
-    "UsbDeviceProtocol",
+    "UsbBaseDeviceInfo",
+    "UsbBaseDeviceProtocol",
+    "UsbBaseDeviceService",
     "UsbVolumeInfo",
     "UsbStorageDeviceInfo",
     "UsbStorageDeviceProtocol",

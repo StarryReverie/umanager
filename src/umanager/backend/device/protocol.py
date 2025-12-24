@@ -11,7 +11,7 @@ class UsbDeviceId:
 
 
 @dataclass(frozen=True, slots=True)
-class UsbDeviceInfo:
+class UsbBaseDeviceInfo:
     id: UsbDeviceId
     vendor_id: Optional[str] = None
     product_id: Optional[str] = None
@@ -25,10 +25,12 @@ class UsbDeviceInfo:
     description: Optional[str] = None
 
 
-class UsbDeviceProtocol(Protocol):
-    def get_device_info(self, device_id: UsbDeviceId) -> UsbDeviceInfo: ...
+class UsbBaseDeviceProtocol(Protocol):
+    def refresh(self) -> None: ...
 
-    def list_device_ids(self) -> list[UsbDeviceId]: ...
+    def get_base_device_info(self, device_id: UsbDeviceId) -> UsbBaseDeviceInfo: ...
+
+    def list_base_device_ids(self) -> list[UsbDeviceId]: ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -42,7 +44,7 @@ class UsbVolumeInfo:
 
 
 @dataclass(frozen=True, slots=True)
-class UsbStorageDeviceInfo(UsbDeviceInfo):
+class UsbStorageDeviceInfo(UsbBaseDeviceInfo):
     volumes: list[UsbVolumeInfo] = None  # type: ignore[assignment]
 
 

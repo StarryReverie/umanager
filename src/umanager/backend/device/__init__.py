@@ -1,7 +1,7 @@
 from .protocol import (
     UsbDeviceId,
-    UsbDeviceInfo,
-    UsbDeviceProtocol,
+    UsbBaseDeviceInfo,
+    UsbBaseDeviceProtocol,
     UsbStorageDeviceInfo,
     UsbStorageDeviceProtocol,
     UsbVolumeInfo,
@@ -9,8 +9,8 @@ from .protocol import (
 
 __all__ = [
     "UsbDeviceId",
-    "UsbDeviceInfo",
-    "UsbDeviceProtocol",
+    "UsbBaseDeviceInfo",
+    "UsbBaseDeviceProtocol",
     "UsbVolumeInfo",
     "UsbStorageDeviceInfo",
     "UsbStorageDeviceProtocol",

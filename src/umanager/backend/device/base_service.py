@@ -37,7 +37,7 @@ class UsbBaseDeviceService(UsbBaseDeviceProtocol):
     _cached_usb_pnp_entities: list[PnPEntity] = []
 
     def __init__(self) -> None:
-        self.refresh()
+        pass
 
     def refresh(self) -> None:
         self._cached_usb_pnp_entities = self._scan_usb_pnp_entities_uncached()

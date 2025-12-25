@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional, Protocol
 
@@ -46,7 +46,7 @@ class UsbVolumeInfo:
 @dataclass(frozen=True, slots=True)
 class UsbStorageDeviceInfo:
     base: UsbBaseDeviceInfo
-    volumes: list[UsbVolumeInfo] = []
+    volumes: list[UsbVolumeInfo] = field(default_factory=list)
 
 
 class UsbStorageDeviceProtocol(Protocol):

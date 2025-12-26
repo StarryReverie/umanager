@@ -31,7 +31,6 @@ class _DeviceInfoTableModel(QAbstractTableModel):
             ("剩余 (GB)", self._format_free_bytes),
         ]
 
-    # --- 数据格式化 ---
     @staticmethod
     def _format_speed(device: DeviceRow) -> str:
         base, _storage = device
@@ -73,7 +72,6 @@ class _DeviceInfoTableModel(QAbstractTableModel):
                 free.append(_bytes_to_gb_str(v.free_bytes))
         return ", ".join(free)
 
-    # --- QAbstractTableModel 接口 ---
     def rowCount(self, parent: QModelIndex | None = None) -> int:  # type: ignore[override]
         if parent and parent.isValid():
             return 0
@@ -103,7 +101,6 @@ class _DeviceInfoTableModel(QAbstractTableModel):
             return Qt.NoItemFlags
         return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
-    # --- 数据操作 ---
     def set_devices(self, devices: Iterable[DeviceItem]) -> None:
         self.beginResetModel()
         self._devices = [_to_device_row(d) for d in devices]
@@ -142,7 +139,6 @@ class DeviceInfoListWidget(QWidget):
         layout.addWidget(self._table)
         self.setLayout(layout)
 
-    # --- 公共 API ---
     def set_devices(self, devices: Iterable[DeviceItem]) -> None:
         self._model.set_devices(devices)
         self._table.resizeColumnsToContents()
@@ -156,7 +152,6 @@ class DeviceInfoListWidget(QWidget):
             return None, None
         return row
 
-    # --- 信号处理 ---
     def _emit_device_activated(self, index: QModelIndex) -> None:
         device = self._model.device_at(index.row())
         if device is not None:

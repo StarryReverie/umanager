@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
 
-from umanager.ui.widgets import OverviewButtonBar
+from umanager.ui.widgets import OverviewButtonBarWidget
 
 if __name__ == "__main__":
     app = QApplication([])
@@ -9,7 +9,7 @@ if __name__ == "__main__":
     root.setWindowTitle("OverviewButtonBar Test")
     layout = QVBoxLayout(root)
 
-    button_bar = OverviewButtonBar()
+    button_bar = OverviewButtonBarWidget()
     button_bar.refresh_devices.connect(lambda: print("Signal: refresh_devices"))
     button_bar.open_file_manager.connect(lambda: print("Signal: open_file_manager"))
     button_bar.view_details.connect(lambda: print("Signal: view_details"))

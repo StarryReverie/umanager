@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from ...backend.device import UsbBaseDeviceProtocol, UsbStorageDeviceProtocol
 from ..states import OverviewStateManager
-from ..widgets import DeviceInfoListWidget, OverviewButtonBar, OverviewTitleBar
+from ..widgets import DeviceInfoListWidget, OverviewButtonBarWidget, OverviewTitleBarWidget
 
 
 class OverviewPage(QWidget):
@@ -37,9 +37,9 @@ class OverviewPage(QWidget):
         )
 
         # 创建 UI 控件
-        self._title_bar = OverviewTitleBar()
+        self._title_bar = OverviewTitleBarWidget()
         self._device_list = DeviceInfoListWidget()
-        self._button_bar = OverviewButtonBar()
+        self._button_bar = OverviewButtonBarWidget()
 
         # 连接状态管理器信号到 UI 更新
         self._state_manager.devicesChanged.connect(self._on_devices_changed)

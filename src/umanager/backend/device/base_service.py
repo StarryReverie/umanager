@@ -5,8 +5,8 @@ import threading
 from dataclasses import dataclass
 from typing import Any, Optional, Protocol
 
-import wmi
 import pythoncom  # type: ignore
+import wmi
 
 from .protocol import UsbBaseDeviceInfo, UsbBaseDeviceProtocol, UsbDeviceId
 from .registry import RegistryDeviceUtil

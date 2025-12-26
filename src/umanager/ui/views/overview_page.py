@@ -37,9 +37,7 @@ class OverviewPageView(QWidget):
         super().__init__(parent)
 
         # 创建状态管理器
-        self._state_manager = OverviewStateManager(
-            self, base_service, storage_service
-        )
+        self._state_manager = OverviewStateManager(self, base_service, storage_service)
 
         # 创建 UI 控件
         self._title_bar = OverviewTitleBarWidget()

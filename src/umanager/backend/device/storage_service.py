@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional, Protocol
 
-import wmi
 import pythoncom  # type: ignore
+import wmi
 
 from .base_service import UsbBaseDeviceService
 from .protocol import (

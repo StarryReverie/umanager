@@ -10,6 +10,7 @@ if __name__ == "__main__":
     layout = QVBoxLayout(root)
 
     button_bar = OverviewButtonBar()
+    button_bar.refresh_devices.connect(lambda: print("Signal: refresh_devices"))
     button_bar.open_file_manager.connect(lambda: print("Signal: open_file_manager"))
     button_bar.view_details.connect(lambda: print("Signal: view_details"))
     button_bar.eject_device.connect(lambda: print("Signal: eject_device"))

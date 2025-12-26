@@ -1,3 +1,6 @@
+import os
+
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 from umanager.backend.device import UsbBaseDeviceService, UsbStorageDeviceService
@@ -6,6 +9,10 @@ from umanager.ui.widgets import BasicInfoBarWidget
 
 if __name__ == "__main__":
     app = QApplication([])
+
+    auto_quit_ms = int(os.getenv("UMANAGER_AUTO_QUIT_MS", "0"))
+    if auto_quit_ms > 0:
+        QTimer.singleShot(auto_quit_ms, app.quit)
 
     # 根容器：顶部基础信息栏 + 下方总览页
     root = QWidget()
@@ -26,11 +33,6 @@ if __name__ == "__main__":
 
     # 信号输出便于观察交互
     sm = overview.state_manager()
-    sm.fileManagerRequested.connect(
-        lambda base, storage: print(
-            f"打开文件管理器: {getattr(base, 'product', '未知设备')}, 存储={storage is not None}"
-        )
-    )
     sm.detailsRequested.connect(
         lambda base, storage: print(f"查看详情: {getattr(base, 'product', '未知设备')}")
     )
@@ -75,9 +77,7 @@ if __name__ == "__main__":
                 print("选中设备: None")
             else:
                 base, storage = selected
-                print(
-                    f"选中设备: {getattr(base, 'product', 'None')} | 存储={storage is not None}"
-                )
+                print(f"选中设备: {getattr(base, 'product', 'None')} | 存储={storage is not None}")
             last["selected"] = selected
 
         if last_operation is not None and last_operation != last["last_operation"]:

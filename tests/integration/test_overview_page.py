@@ -1,3 +1,6 @@
+import os
+
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication
 
 from umanager.backend.device import UsbBaseDeviceService, UsbStorageDeviceService
@@ -6,10 +9,13 @@ from umanager.ui.views import OverviewPageView
 if __name__ == "__main__":
     app = QApplication([])
 
+    auto_quit_ms = int(os.getenv("UMANAGER_AUTO_QUIT_MS", "0"))
+    if auto_quit_ms > 0:
+        QTimer.singleShot(auto_quit_ms, app.quit)
+
+    # 创建总览页，传递服务实例
     base_service = UsbBaseDeviceService()
     storage_service = UsbStorageDeviceService(base_service)
-
-    # 创建总览页，直接注入服务实例
     overview = OverviewPageView(
         base_service=base_service,
         storage_service=storage_service,
@@ -19,12 +25,7 @@ if __name__ == "__main__":
     # 使用状态管理器的信号进行测试
     sm = overview.state_manager()
 
-    # 请求类信号（由按钮或双击触发）
-    sm.fileManagerRequested.connect(
-        lambda base, storage: print(
-            f"打开文件管理器: {getattr(base, 'product', '未知设备')}, 存储={storage is not None}"
-        )
-    )
+    # 请求类信号（由按钮触发）
     sm.detailsRequested.connect(
         lambda base, storage: print(f"查看详情: {getattr(base, 'product', '未知设备')}")
     )
@@ -70,9 +71,7 @@ if __name__ == "__main__":
                 print("选中设备: None")
             else:
                 base, storage = selected
-                print(
-                    f"选中设备: {getattr(base, 'product', 'None')} | 存储={storage is not None}"
-                )
+                print(f"选中设备: {getattr(base, 'product', 'None')} | 存储={storage is not None}")
             last["selected"] = selected
 
         if last_operation is not None and last_operation != last["last_operation"]:

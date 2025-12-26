@@ -20,15 +20,11 @@ class _DeviceInfoTableModel(QAbstractTableModel):
         super().__init__(parent)
         self._devices: list[DeviceRow] = list(devices) if devices else []
         self._columns: list[tuple[str, Callable[[DeviceRow], str]]] = [
-            ("制造商", lambda d: d[0].manufacturer or ""),
             ("产品", lambda d: d[0].product or ""),
             ("序列号", lambda d: d[0].serial_number or ""),
-            ("USB 版本", lambda d: d[0].usb_version or ""),
-            ("速度 (Mbps)", self._format_speed),
             ("卷标", self._format_volume_labels),
-            ("文件系统", self._format_file_systems),
-            ("容量 (GB)", self._format_total_bytes),
-            ("剩余 (GB)", self._format_free_bytes),
+            ("速度 (Mbps)", self._format_speed),
+            ("剩余/容量 (GB)", self._format_capacity),
         ]
 
     @staticmethod
@@ -46,31 +42,17 @@ class _DeviceInfoTableModel(QAbstractTableModel):
         return ", ".join(labels)
 
     @staticmethod
-    def _format_file_systems(device: DeviceRow) -> str:
+    def _format_capacity(device: DeviceRow) -> str:
+        """格式化容量显示为 "剩余/容量" 的形式。"""
         _base, storage = device
         volumes = _safe_volumes(storage.volumes if storage else None)
-        fs: list[str] = [v.file_system for v in volumes if v.file_system]
-        return ", ".join(fs)
-
-    @staticmethod
-    def _format_total_bytes(device: DeviceRow) -> str:
-        _base, storage = device
-        volumes = _safe_volumes(storage.volumes if storage else None)
-        total: list[str] = []
+        capacity_strs: list[str] = []
         for v in volumes:
-            if v.total_bytes is not None:
-                total.append(_bytes_to_gb_str(v.total_bytes))
-        return ", ".join(total)
-
-    @staticmethod
-    def _format_free_bytes(device: DeviceRow) -> str:
-        _base, storage = device
-        volumes = _safe_volumes(storage.volumes if storage else None)
-        free: list[str] = []
-        for v in volumes:
-            if v.free_bytes is not None:
-                free.append(_bytes_to_gb_str(v.free_bytes))
-        return ", ".join(free)
+            if v.free_bytes is not None and v.total_bytes is not None:
+                free_gb = _bytes_to_gb_str(v.free_bytes)
+                total_gb = _bytes_to_gb_str(v.total_bytes)
+                capacity_strs.append(f"{free_gb}/{total_gb}")
+        return ", ".join(capacity_strs)
 
     def rowCount(self, parent: QModelIndex | None = None) -> int:  # type: ignore[override]
         if parent and parent.isValid():
@@ -127,6 +109,7 @@ class DeviceInfoListWidget(QWidget):
         self._table.setModel(self._model)
         self._table.setSelectionBehavior(QTableView.SelectRows)
         self._table.setSelectionMode(QTableView.SingleSelection)
+        self._table.setFocusPolicy(Qt.NoFocus)  # 禁用行获取键盘焦点时的虚线光标
         self._table.doubleClicked.connect(self._emit_device_activated)
         self._table.selectionModel().selectionChanged.connect(self._on_selection_changed)
 

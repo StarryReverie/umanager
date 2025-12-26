@@ -5,7 +5,7 @@ from typing import Optional
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 
-class OverviewTitleBar(QWidget):
+class OverviewTitleBarWidget(QWidget):
     """总览页标题栏，包含标题、设备计数和扫描状态指示。
 
     布局：
@@ -24,9 +24,8 @@ class OverviewTitleBar(QWidget):
 
         self._status_label = QLabel("扫描中...")
         self._status_label.setStyleSheet("font-size: 9pt; color: #2196F3;")
-        self._status_label.setVisible(False)  # 默认隐藏
+        self._status_label.setVisible(False)
 
-        # 布局：水平
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self._title_label)
@@ -37,7 +36,6 @@ class OverviewTitleBar(QWidget):
 
         self.setLayout(layout)
 
-    # --- 公共 API ---
     def set_device_count(self, count: int) -> None:
         """设置设备计数显示。"""
         self._count_label.setText(f"({count} 个设备)")

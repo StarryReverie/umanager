@@ -1,7 +1,7 @@
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
 
-from umanager.ui.widgets import OverviewTitleBar
+from umanager.ui.widgets import OverviewTitleBarWidget
 
 if __name__ == "__main__":
     app = QApplication([])
@@ -10,7 +10,7 @@ if __name__ == "__main__":
     root.setWindowTitle("OverviewTitleBar Test")
     layout = QVBoxLayout(root)
 
-    title_bar = OverviewTitleBar()
+    title_bar = OverviewTitleBarWidget()
 
     # 测试设备计数变化
     title_bar.set_device_count(0)

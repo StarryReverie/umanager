@@ -6,7 +6,7 @@ from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QHBoxLayout, QPushButton, QWidget
 
 
-class OverviewButtonBar(QWidget):
+class OverviewButtonBarWidget(QWidget):
     """总览页按钮栏，水平布局，居右对齐。
 
     包含四个按钮：
@@ -46,7 +46,6 @@ class OverviewButtonBar(QWidget):
 
         self.setLayout(layout)
 
-    # --- 公共 API ---
     def set_enabled(self, enabled: bool) -> None:
         """启用或禁用所有按钮。"""
         self._refresh_btn.setEnabled(enabled)

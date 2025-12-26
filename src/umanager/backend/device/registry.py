@@ -6,14 +6,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Optional
 
-
-@dataclass(frozen=True, slots=True)
-class DeviceEjectResult:
-    success: bool
-    attempted_instance_id: str
-    config_ret: int
-    veto_type: Optional[int] = None
-    veto_name: Optional[str] = None
+from .protocol import DeviceEjectResult
 
 
 class _GUID(ctypes.Structure):

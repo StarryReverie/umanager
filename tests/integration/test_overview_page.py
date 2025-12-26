@@ -38,7 +38,7 @@ if __name__ == "__main__":
     sm.devicesChanged.connect(lambda d: print(f"设备列表更新，共 {len(d)} 项"))
     sm.selectedDeviceChanged.connect(
         lambda base, storage: print(
-            f"选中设备: {getattr(base, 'product', 'None')} | 存储={storage is not None if storage else False}"
+            f"选中设备: {getattr(base, 'product', 'None')} | 存储={storage is not None}"
         )
     )
 

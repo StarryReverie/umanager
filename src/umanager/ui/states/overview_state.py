@@ -3,9 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from typing import Callable, Optional
 
-from PySide6 import QtCore
-
 import pythoncom
+from PySide6 import QtCore
 
 from ...backend.device import (
     UsbBaseDeviceInfo,

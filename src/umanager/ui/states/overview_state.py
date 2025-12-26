@@ -3,8 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from typing import Callable, Optional
 
-# 注释掉 COM 初始化以测试无 pythoncom 情况
-# import pythoncom
 from PySide6 import QtCore
 
 from ...backend.device import (
@@ -38,16 +36,11 @@ class _AsyncCall(QtCore.QRunnable):
 
     @QtCore.Slot()
     def run(self) -> None:
-        # 初始化 COM（WMI 需要）
-        # pythoncom.CoInitialize()
         try:
             result = self._func()
         except Exception as exc:  # noqa: BLE001
             self.signals.error.emit(exc)
             return
-        finally:
-            # pythoncom.CoUninitialize()
-            pass
         self.signals.finished.emit(result)
 
 

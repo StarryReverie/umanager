@@ -4,7 +4,8 @@ version = "0.1.0"
 description = "USB device manager for Windows"
 readme = "README.md"
 authors = [
-    { name = "Justin Chen", email = "starryreverie@proton.me" }
+    { name = "Justin Chen", email = "starryreverie@proton.me" },
+    { name = "keketcl", email = "376023052@qq.com" }
 ]
 requires-python = ">=3.13"
 dependencies = [

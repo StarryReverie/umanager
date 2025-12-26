@@ -5,6 +5,7 @@ from typing import Callable, Optional
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
 from ...backend.device import UsbBaseDeviceProtocol, UsbStorageDeviceProtocol
+from ..dialogs import DeviceDetailDialog
 from ..states import OverviewStateManager
 from ..widgets import DeviceInfoListWidget, OverviewButtonBar, OverviewTitleBar
 
@@ -46,6 +47,7 @@ class OverviewPage(QWidget):
         self._state_manager.deviceCountChanged.connect(self._on_device_count_changed)
         self._state_manager.scanningChanged.connect(self._on_scanning_changed)
         self._state_manager.selectedDeviceChanged.connect(self._on_selected_device_changed)
+        self._state_manager.detailsRequested.connect(self._on_details_requested)
         # 额外保障：刷新结束/失败时强制复位 UI（避免潜在竞态）
         self._state_manager.refreshFinished.connect(self._on_refresh_finished)
         self._state_manager.refreshFailed.connect(self._on_refresh_failed)
@@ -100,6 +102,13 @@ class OverviewPage(QWidget):
     def _on_selected_device_changed(self, base, storage) -> None:
         """选中设备变化时更新按钮状态。"""
         self._update_button_states(base, storage)
+
+    def _on_details_requested(self, base, storage) -> None:
+        """查看详情：弹出对话框展示完整信息。"""
+        if base is None:
+            return
+        dialog = DeviceDetailDialog(base, storage, parent=self)
+        dialog.exec()
 
     def _update_button_states(self, base, storage) -> None:
         """根据选中设备更新按钮状态。"""

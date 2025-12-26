@@ -44,15 +44,9 @@ class OverviewPageView(QWidget):
         self._device_list = DeviceInfoListWidget()
         self._button_bar = OverviewButtonBarWidget()
 
-        # 连接状态管理器信号到 UI 更新
-        self._state_manager.devicesChanged.connect(self._on_devices_changed)
-        self._state_manager.deviceCountChanged.connect(self._on_device_count_changed)
+        # 连接状态管理器信号到 UI 更新（只使用 stateChanged）
         self._state_manager.stateChanged.connect(self._on_state_changed)
-        self._state_manager.scanningChanged.connect(self._on_scanning_changed)
         self._state_manager.detailsRequested.connect(self._on_details_requested)
-        # 额外保障：刷新结束/失败时强制复位 UI（避免潜在竞态）
-        self._state_manager.refreshFinished.connect(self._on_refresh_finished)
-        self._state_manager.refreshFailed.connect(self._on_refresh_failed)
 
         # 连接 UI 控件信号到状态管理器
         self._button_bar.refresh_devices.connect(self._state_manager.refresh)
@@ -70,8 +64,8 @@ class OverviewPageView(QWidget):
         layout.addWidget(self._button_bar)
         self.setLayout(layout)
 
-        # 初始化按钮状态
-        self._sync_button_states(self._state_manager.state())
+        # 初始化 UI
+        self._on_state_changed(self._state_manager.state())
 
         # 自动加载设备列表
         self._state_manager.refresh()
@@ -88,21 +82,13 @@ class OverviewPageView(QWidget):
 
     # --- 状态变化响应（UI 更新） ---
 
-    def _on_devices_changed(self, devices: tuple) -> None:
-        """设备列表变化时更新 UI。"""
-        self._device_list.set_devices(devices)
-
-    def _on_device_count_changed(self, count: int) -> None:
-        """设备数量变化时更新标题栏。"""
-        self._title_bar.set_device_count(count)
-
-    def _on_scanning_changed(self, is_scanning: bool) -> None:
-        """扫描状态变化时更新 UI。"""
-        self._title_bar.set_scanning(is_scanning)
-
     def _on_state_changed(self, state: object) -> None:
         if not isinstance(state, OverviewState):
             return
+
+        self._title_bar.set_device_count(state.device_count)
+        self._title_bar.set_scanning(state.is_scanning)
+        self._device_list.set_devices(state.devices)
         self._sync_button_states(state)
 
     def _on_details_requested(self, base, storage) -> None:
@@ -145,13 +131,3 @@ class OverviewPageView(QWidget):
 
         base, storage = state.selected_device
         self._update_button_states(base, storage)
-
-    # --- 刷新流程的兜底复位 ---
-    def _on_refresh_finished(self) -> None:
-        """刷新结束时，确保扫描指示与按钮状态复位。"""
-        self._title_bar.set_scanning(False)
-
-    def _on_refresh_failed(self, exc: object) -> None:
-        """刷新失败时，确保扫描指示与按钮状态复位。"""
-        _ = exc
-        self._title_bar.set_scanning(False)

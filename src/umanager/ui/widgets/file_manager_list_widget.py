@@ -3,18 +3,48 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 
 from umanager.backend.filesystem.protocol import FileEntry
 from umanager.ui.states import FileManagerState, FileManagerStateManager
 
 
 class _FileEntryTableModel(QtCore.QAbstractTableModel):
-    _COLUMNS = ("名称", "大小", "修改时间")
+    _COLUMNS = ("名称", "类型", "大小", "修改时间")
 
     def __init__(self, parent: Optional[QtCore.QObject] = None) -> None:
         super().__init__(parent)
         self._entries: tuple[FileEntry, ...] = ()
+        self._min_column_widths = self._compute_min_column_widths()
+
+    @staticmethod
+    def _compute_min_column_widths() -> dict[int, int]:
+        if QtWidgets.QApplication.instance() is None:
+            return {}
+
+        fm = QtGui.QFontMetrics(QtWidgets.QApplication.font())
+        padding = fm.averageCharWidth() * 2
+
+        type_width = max(
+            fm.horizontalAdvance("目录"),
+            fm.horizontalAdvance("txt 文件"),
+            fm.horizontalAdvance("文件"),
+            fm.horizontalAdvance("类型"),
+        )
+        size_width = max(
+            fm.horizontalAdvance("9999999999"),
+            fm.horizontalAdvance("大小"),
+        )
+        modified_width = max(
+            fm.horizontalAdvance("2025-12-26 23:59:59"),
+            fm.horizontalAdvance("修改时间"),
+        )
+
+        return {
+            1: type_width + padding,
+            2: size_width + padding,
+            3: modified_width + padding,
+        }
 
     def set_entries(self, entries: tuple[FileEntry, ...]) -> None:
         if entries == self._entries:
@@ -77,20 +107,30 @@ class _FileEntryTableModel(QtCore.QAbstractTableModel):
                 suffix = "/" if entry.is_dir else ""
                 return f"{entry.name}{suffix}"
             if column == 1:
-                return "" if entry.is_dir else str(entry.size)
+                if entry.is_dir:
+                    return "目录"
+
+                ext = entry.path.suffix
+                if ext:
+                    return f"{ext.lstrip('.')} 文件"
+                return "文件"
             if column == 2:
+                return "" if entry.is_dir else str(entry.size)
+            if column == 3:
                 return "" if entry.mtime is None else entry.mtime.strftime("%Y-%m-%d %H:%M:%S")
             return None
 
         if role == QtCore.Qt.ItemDataRole.TextAlignmentRole:
-            if column == 1:
-                return int(
-                    QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignVCenter
-                )
             return int(QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignVCenter)
 
         if role == QtCore.Qt.ItemDataRole.ToolTipRole:
             return str(entry.path)
+
+        if role == QtCore.Qt.ItemDataRole.SizeHintRole:
+            width = self._min_column_widths.get(column)
+            if width is None:
+                return None
+            return QtCore.QSize(width, 0)
 
         if role == QtCore.Qt.ItemDataRole.UserRole:
             return entry
@@ -118,16 +158,12 @@ class FileManagerListWidget(QtWidgets.QWidget):
         self._table.setEditTriggers(QtWidgets.QAbstractItemView.EditTrigger.NoEditTriggers)
         self._table.setSortingEnabled(False)
         self._table.verticalHeader().setVisible(False)
-        self._table.horizontalHeader().setStretchLastSection(True)
-        self._table.horizontalHeader().setSectionResizeMode(
-            0, QtWidgets.QHeaderView.ResizeMode.Stretch
-        )
-        self._table.horizontalHeader().setSectionResizeMode(
-            1, QtWidgets.QHeaderView.ResizeMode.ResizeToContents
-        )
-        self._table.horizontalHeader().setSectionResizeMode(
-            2, QtWidgets.QHeaderView.ResizeMode.ResizeToContents
-        )
+        header = self._table.horizontalHeader()
+        header.setStretchLastSection(False)
+        header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
 
         layout.addWidget(self._table)
 

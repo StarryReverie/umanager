@@ -32,18 +32,58 @@ if __name__ == "__main__":
         lambda base, storage: print(f"安全弹出: {getattr(base, 'product', '未知设备')}")
     )
 
-    # 状态变化类信号（加载流程与选择状态）
-    sm.refreshStarted.connect(lambda: print("刷新开始"))
-    sm.refreshFinished.connect(lambda: print("刷新完成"))
-    sm.refreshFailed.connect(lambda e: print(f"刷新失败: {e}"))
-    sm.scanningChanged.connect(lambda s: print(f"扫描中: {s}"))
-    sm.deviceCountChanged.connect(lambda c: print(f"设备数量: {c}"))
-    sm.devicesChanged.connect(lambda d: print(f"设备列表更新，共 {len(d)} 项"))
-    sm.selectedDeviceChanged.connect(
-        lambda base, storage: print(
-            f"选中设备: {getattr(base, 'product', 'None')} | 存储={storage is not None}"
-        )
-    )
+    # 状态变化：仅订阅 stateChanged
+    last = {
+        "is_scanning": None,
+        "device_count": None,
+        "devices_len": None,
+        "selected": None,
+        "last_operation": None,
+    }
+
+    def on_state_changed(state: object) -> None:
+        if not hasattr(state, "is_scanning"):
+            return
+
+        is_scanning = getattr(state, "is_scanning")
+        device_count = getattr(state, "device_count")
+        devices = getattr(state, "devices")
+        selected = getattr(state, "selected_device")
+        last_operation = getattr(state, "last_operation")
+        last_operation_error = getattr(state, "last_operation_error")
+
+        if last["is_scanning"] != is_scanning:
+            print(f"扫描中: {is_scanning}")
+            last["is_scanning"] = is_scanning
+
+        if last["device_count"] != device_count:
+            print(f"设备数量: {device_count}")
+            last["device_count"] = device_count
+
+        devices_len = len(devices) if devices is not None else 0
+        if last["devices_len"] != devices_len:
+            print(f"设备列表更新，共 {devices_len} 项")
+            last["devices_len"] = devices_len
+
+        if last["selected"] != selected:
+            if selected is None:
+                print("选中设备: None")
+            else:
+                base, storage = selected
+                print(
+                    f"选中设备: {getattr(base, 'product', 'None')} | 存储={storage is not None}"
+                )
+            last["selected"] = selected
+
+        if last_operation is not None and last_operation != last["last_operation"]:
+            if last_operation == "refresh":
+                if last_operation_error is None:
+                    print("刷新完成")
+                else:
+                    print(f"刷新失败: {last_operation_error}")
+            last["last_operation"] = last_operation
+
+    sm.stateChanged.connect(on_state_changed)
 
     overview.resize(900, 600)
     overview.show()

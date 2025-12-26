@@ -6,7 +6,13 @@ from typing import Callable, Optional
 
 from PySide6 import QtCore
 
-from umanager.backend.filesystem.protocol import FileEntry, FileSystemProtocol, ListOptions
+from umanager.backend.filesystem.protocol import (
+    CopyOptions,
+    DeleteOptions,
+    FileEntry,
+    FileSystemProtocol,
+    ListOptions,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -15,6 +21,8 @@ class FileManagerState:
     entries: tuple[FileEntry, ...] = ()
     show_hidden: bool = False
     selected_entry: Optional[FileEntry] = None
+    clipboard_path: Optional[Path] = None
+    clipboard_mode: Optional[str] = None  # "copy" | "cut"
 
     def selected_path(self) -> Optional[Path]:
         return None if self.selected_entry is None else self.selected_entry.path
@@ -41,6 +49,33 @@ class _AsyncCall(QtCore.QRunnable):
         self.signals.finished.emit(result)
 
 
+class _OperationHandler(QtCore.QObject):
+    def __init__(
+        self,
+        manager: "FileManagerStateManager",
+        name: str,
+        on_success: Optional[Callable[[object], None]],
+    ) -> None:
+        super().__init__(manager)
+        self._manager = manager
+        self._name = name
+        self._on_success = on_success
+
+    @QtCore.Slot(object)
+    def on_finished(self, result: object) -> None:
+        if self._on_success is not None:
+            self._on_success(result)
+        self._manager.operationFinished.emit(self._name)
+        self._manager._active_operation_handlers.discard(self)
+        self.deleteLater()
+
+    @QtCore.Slot(object)
+    def on_error(self, exc: object) -> None:
+        self._manager.operationFailed.emit(self._name, exc)
+        self._manager._active_operation_handlers.discard(self)
+        self.deleteLater()
+
+
 class FileManagerStateManager(QtCore.QObject):
     stateChanged = QtCore.Signal(object)
 
@@ -55,15 +90,29 @@ class FileManagerStateManager(QtCore.QObject):
 
     refreshRequested = QtCore.Signal(object, bool)
 
+    # UI should connect these to show modal dialogs.
+    createFileDialogRequested = QtCore.Signal(object)  # current_directory
+    renameDialogRequested = QtCore.Signal(object)  # selected_entry
+
+    clipboardChanged = QtCore.Signal(object, object)  # (clipboard_path, clipboard_mode)
+
+    operationStarted = QtCore.Signal(str)
+    operationFinished = QtCore.Signal(str)
+    operationFailed = QtCore.Signal(str, object)
+
     _state: FileManagerState
     _filesystem_service: FileSystemProtocol
     _refresh_generation: int
+    _pending_select_path: Optional[Path]
+    _active_operation_handlers: set[_OperationHandler]
 
     def __init__(self, parent: QtCore.QObject, filesystem: FileSystemProtocol) -> None:
         super().__init__(parent)
         self._state = FileManagerState()
         self._filesystem_service = filesystem
         self._refresh_generation = 0
+        self._pending_select_path = None
+        self._active_operation_handlers = set()
 
     def state(self) -> FileManagerState:
         return self._state
@@ -163,6 +212,15 @@ class FileManagerStateManager(QtCore.QObject):
             return
 
         self.set_entries(entries)
+
+        if self._pending_select_path is not None:
+            target = self._pending_select_path
+            self._pending_select_path = None
+            for entry in self._state.entries:
+                if entry.path == target:
+                    self.set_selected_entry(entry)
+                    break
+
         self.refreshFinished.emit(self._state.current_directory)
 
     @QtCore.Slot(object)
@@ -172,3 +230,167 @@ class FileManagerStateManager(QtCore.QObject):
     def _set_state(self, state: FileManagerState) -> None:
         self._state = state
         self.stateChanged.emit(self._state)
+
+    def _set_clipboard(self, path: Optional[Path], mode: Optional[str]) -> None:
+        if path == self._state.clipboard_path and mode == self._state.clipboard_mode:
+            return
+        self._set_state(replace(self._state, clipboard_path=path, clipboard_mode=mode))
+        self.clipboardChanged.emit(self._state.clipboard_path, self._state.clipboard_mode)
+
+    def _run_filesystem_operation(
+        self,
+        name: str,
+        func: Callable[[], object],
+        *,
+        on_success: Optional[Callable[[object], None]] = None,
+    ) -> None:
+        self.operationStarted.emit(name)
+
+        task = _AsyncCall(func)
+
+        handler = _OperationHandler(self, name, on_success)
+        self._active_operation_handlers.add(handler)
+        task.signals.finished.connect(handler.on_finished)
+        task.signals.error.connect(handler.on_error)
+        QtCore.QThreadPool.globalInstance().start(task)
+
+    # ---- Slots for external UI/actions ----
+
+    @QtCore.Slot()
+    def request_create_file(self) -> None:
+        if self._state.current_directory is None:
+            return
+        self.createFileDialogRequested.emit(self._state.current_directory)
+
+    @QtCore.Slot(str)
+    def create_file(self, file_name: str) -> None:
+        directory = self._state.current_directory
+        if directory is None:
+            return
+
+        file_name = file_name.strip()
+        if not file_name:
+            return
+
+        new_path = directory / file_name
+
+        def do_create() -> object:
+            return self._filesystem_service.touch_file(new_path, exist_ok=False, parents=False)
+
+        def on_success(_result: object) -> None:
+            self._pending_select_path = new_path
+            self.refresh()
+
+        self._run_filesystem_operation("create", do_create, on_success=on_success)
+
+    @QtCore.Slot()
+    def delete_selected(self) -> None:
+        entry = self._state.selected_entry
+        if entry is None:
+            return
+
+        path = entry.path
+
+        def do_delete() -> object:
+            self._filesystem_service.delete(
+                path, options=DeleteOptions(recursive=True, force=False)
+            )
+            return None
+
+        def on_success(_result: object) -> None:
+            self.set_selected_entry(None)
+            self.refresh()
+
+        self._run_filesystem_operation("delete", do_delete, on_success=on_success)
+
+    @QtCore.Slot()
+    def copy_selected(self) -> None:
+        entry = self._state.selected_entry
+        if entry is None:
+            return
+        self._set_clipboard(entry.path, "copy")
+
+    @QtCore.Slot()
+    def cut_selected(self) -> None:
+        entry = self._state.selected_entry
+        if entry is None:
+            return
+        self._set_clipboard(entry.path, "cut")
+
+    @QtCore.Slot()
+    def clear_clipboard(self) -> None:
+        self._set_clipboard(None, None)
+
+    @QtCore.Slot()
+    def paste(self) -> None:
+        directory = self._state.current_directory
+        if directory is None:
+            return
+
+        src = self._state.clipboard_path
+        mode = self._state.clipboard_mode
+        if src is None or mode not in {"copy", "cut"}:
+            return
+
+        dst = directory / src.name
+        if dst == src:
+            return
+
+        if mode == "copy":
+
+            def do_paste_copy() -> object:
+                return self._filesystem_service.copy_path(
+                    src,
+                    dst,
+                    options=CopyOptions(recursive=True, overwrite=False),
+                )
+
+            def on_success(_result: object) -> None:
+                self.clear_clipboard()
+                self._pending_select_path = dst
+                self.refresh()
+
+            self._run_filesystem_operation("paste_copy", do_paste_copy, on_success=on_success)
+            return
+
+        def do_paste_cut() -> object:
+            return self._filesystem_service.move_path(src, dst, overwrite=False)
+
+        def on_success(_result: object) -> None:
+            self.clear_clipboard()
+            self._pending_select_path = dst
+            self.refresh()
+
+        self._run_filesystem_operation("paste_cut", do_paste_cut, on_success=on_success)
+
+    @QtCore.Slot()
+    def request_rename_selected(self) -> None:
+        entry = self._state.selected_entry
+        if entry is None:
+            return
+        self.renameDialogRequested.emit(entry)
+
+    @QtCore.Slot(str)
+    def rename_selected(self, new_name: str) -> None:
+        entry = self._state.selected_entry
+        if entry is None:
+            return
+
+        new_name = new_name.strip()
+        if not new_name:
+            return
+
+        src = entry.path
+
+        def do_rename() -> object:
+            return self._filesystem_service.rename(src, new_name, overwrite=False)
+
+        def on_success(result: object) -> None:
+            if isinstance(result, Path):
+                self._pending_select_path = result
+            else:
+                self._pending_select_path = src.parent / new_name
+            self.set_selected_entry(None)
+            self.refresh()
+
+        self._run_filesystem_operation("rename", do_rename, on_success=on_success)

@@ -4,9 +4,13 @@ from typing import Callable, Optional
 
 from PySide6.QtWidgets import QVBoxLayout, QWidget
 
-from ...backend.device import UsbBaseDeviceProtocol, UsbStorageDeviceProtocol
-from ..states import OverviewStateManager
-from ..widgets import DeviceInfoListWidget, OverviewButtonBarWidget, OverviewTitleBarWidget
+from umanager.backend.device import UsbBaseDeviceProtocol, UsbStorageDeviceProtocol
+from umanager.ui.states import OverviewStateManager
+from umanager.ui.widgets import (
+    DeviceInfoListWidget,
+    OverviewButtonBarWidget,
+    OverviewTitleBarWidget,
+)
 
 
 class OverviewPage(QWidget):

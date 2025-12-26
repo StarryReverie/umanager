@@ -47,9 +47,15 @@ class _AsyncCall(QtCore.QRunnable):
         try:
             result = self._func()
         except Exception as exc:  # noqa: BLE001
-            self.signals.error.emit(exc)
+            try:
+                self.signals.error.emit(exc)
+            except RuntimeError:
+                pass
             return
-        self.signals.finished.emit(result)
+        try:
+            self.signals.finished.emit(result)
+        except RuntimeError:
+            pass
 
 
 class OverviewStateManager(QtCore.QObject):

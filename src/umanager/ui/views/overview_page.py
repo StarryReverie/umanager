@@ -25,7 +25,7 @@ class OverviewPageView(QWidget):
     包含控件：
     - 标题栏（设备计数、扫描状态）
     - 设备列表
-    - 按钮栏（刷新、管理文件、查看详情、安全弹出）
+    - 按钮栏（刷新、查看详情、安全弹出）
     """
 
     def __init__(
@@ -50,12 +50,10 @@ class OverviewPageView(QWidget):
 
         # 连接 UI 控件信号到状态管理器
         self._button_bar.refresh_devices.connect(self._state_manager.refresh)
-        self._button_bar.open_file_manager.connect(self._state_manager.request_file_manager)
         self._button_bar.view_details.connect(self._state_manager.request_details)
         self._button_bar.eject_device.connect(self._state_manager.request_eject)
 
         self._device_list.selection_changed.connect(self._state_manager.set_selected_device)
-        self._device_list.device_activated.connect(self._state_manager.handle_device_activated)
 
         # 布局
         layout = QVBoxLayout()
@@ -103,8 +101,6 @@ class OverviewPageView(QWidget):
         has_selection = base is not None
         is_storage = storage is not None
 
-        # 管理文件：仅存储设备可用
-        self._button_bar.set_file_manager_enabled(is_storage)
         # 查看详情：有选中设备即可
         self._button_bar.set_details_enabled(has_selection)
         # 安全弹出：有选中设备即可

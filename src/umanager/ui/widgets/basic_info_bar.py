@@ -7,8 +7,6 @@ from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 
 class BasicInfoBarWidget(QWidget):
-    """根窗口顶部的基本信息栏（应用标题 + 副标题/状态）。"""
-
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
 

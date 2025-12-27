@@ -11,8 +11,6 @@ from umanager.ui.widgets.basic_info_bar import BasicInfoBarWidget
 
 
 class RootWindowView(QWidget):
-    """根窗口（不含状态栏）：基础信息栏 + 主区域。"""
-
     def __init__(
         self,
         base_service: UsbBaseDeviceProtocol,

@@ -10,7 +10,11 @@ if __name__ == "__main__":
     layout = QVBoxLayout(root)
 
     button_bar = FileManagerButtonBarWidget()
+    button_bar.refresh_requested.connect(lambda: print("Signal: refresh_requested"))
     button_bar.create_requested.connect(lambda: print("Signal: create_requested"))
+    button_bar.create_directory_requested.connect(
+        lambda: print("Signal: create_directory_requested")
+    )
     button_bar.open_requested.connect(lambda: print("Signal: open_requested"))
     button_bar.copy_requested.connect(lambda: print("Signal: copy_requested"))
     button_bar.cut_requested.connect(lambda: print("Signal: cut_requested"))

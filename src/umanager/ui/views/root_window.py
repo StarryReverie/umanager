@@ -24,8 +24,7 @@ class RootWindowView(QWidget):
         super().__init__(parent)
 
         self._info_bar = BasicInfoBarWidget(self)
-        self._info_bar.set_title("USB Manager")
-        self._info_bar.set_subtitle("主界面")
+        self._info_bar.set_title("UManager")
         self._info_bar.set_status("")
 
         self._main_area = MainAreaView(

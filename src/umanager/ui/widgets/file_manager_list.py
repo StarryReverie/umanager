@@ -5,7 +5,7 @@ from typing import Optional
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from umanager.backend.filesystem.protocol import FileEntry
+from umanager.backend.filesystem import FileEntry
 from umanager.ui.states import FileManagerState, FileManagerStateManager
 from umanager.util import format_size
 

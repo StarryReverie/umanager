@@ -10,9 +10,9 @@ if __name__ == "__main__":
     layout = QVBoxLayout(root)
 
     button_bar = OverviewButtonBarWidget()
-    button_bar.refresh_devices.connect(lambda: print("Signal: refresh_devices"))
-    button_bar.view_details.connect(lambda: print("Signal: view_details"))
-    button_bar.eject_device.connect(lambda: print("Signal: eject_device"))
+    button_bar.refreshDevices.connect(lambda: print("Signal: refreshDevices"))
+    button_bar.viewDetails.connect(lambda: print("Signal: viewDetails"))
+    button_bar.ejectDevice.connect(lambda: print("Signal: ejectDevice"))
 
     layout.addStretch()
     layout.addWidget(button_bar)

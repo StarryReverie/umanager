@@ -93,8 +93,8 @@ class _DeviceInfoTableModel(QAbstractTableModel):
 
 
 class DeviceInfoListWidget(QWidget):
-    device_activated = Signal(object, object)
-    selection_changed = Signal(object, object)
+    deviceActivated = Signal(object, object)
+    selectionChanged = Signal(object, object)
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -133,11 +133,11 @@ class DeviceInfoListWidget(QWidget):
         device = self._model.device_at(index.row())
         if device is not None:
             base, storage = device
-            self.device_activated.emit(base, storage)
+            self.deviceActivated.emit(base, storage)
 
     def _on_selection_changed(self) -> None:
         base, storage = self.current_device()
-        self.selection_changed.emit(base, storage)
+        self.selectionChanged.emit(base, storage)
 
 
 def _safe_volumes(volumes: Optional[list[UsbVolumeInfo]]) -> list[UsbVolumeInfo]:

@@ -5,7 +5,7 @@ from pathlib import Path
 
 from PySide6.QtWidgets import QApplication
 
-from umanager.backend.filesystem.service import FileSystemService
+from umanager.backend.filesystem import FileSystemService
 from umanager.ui.views import FileManagerPageView
 
 

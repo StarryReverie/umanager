@@ -12,8 +12,7 @@ from umanager.backend.device import (
     UsbStorageDeviceInfo,
     UsbStorageDeviceProtocol,
 )
-from umanager.backend.filesystem.protocol import FileSystemProtocol
-from umanager.backend.filesystem.service import FileSystemService
+from umanager.backend.filesystem import FileSystemProtocol, FileSystemService
 from umanager.ui.states import MainAreaState, MainAreaStateManager
 from umanager.ui.views.file_manager_page import FileManagerPageView
 from umanager.ui.views.overview_page import OverviewPageView
@@ -37,8 +36,8 @@ class MainAreaView(QWidget):
         self._state_manager = MainAreaStateManager(self, base_service, storage_service)
 
         self._sidebar = SidebarWidget(self)
-        self._sidebar.overview_requested.connect(self.show_overview)
-        self._sidebar.device_requested.connect(self.show_device)
+        self._sidebar.overviewRequested.connect(self.show_overview)
+        self._sidebar.deviceRequested.connect(self.show_device)
 
         self._stack = QStackedWidget(self)
 

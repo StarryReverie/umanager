@@ -7,9 +7,9 @@ from PySide6.QtWidgets import QHBoxLayout, QPushButton, QWidget
 
 
 class OverviewButtonBarWidget(QWidget):
-    refresh_devices = Signal()
-    view_details = Signal()
-    eject_device = Signal()
+    refreshDevices = Signal()
+    viewDetails = Signal()
+    ejectDevice = Signal()
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -18,9 +18,9 @@ class OverviewButtonBarWidget(QWidget):
         self._view_details_btn = QPushButton("查看具体信息")
         self._eject_btn = QPushButton("安全弹出")
 
-        self._refresh_btn.clicked.connect(self.refresh_devices.emit)
-        self._view_details_btn.clicked.connect(self.view_details.emit)
-        self._eject_btn.clicked.connect(self.eject_device.emit)
+        self._refresh_btn.clicked.connect(self.refreshDevices.emit)
+        self._view_details_btn.clicked.connect(self.viewDetails.emit)
+        self._eject_btn.clicked.connect(self.ejectDevice.emit)
 
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)

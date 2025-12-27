@@ -4,7 +4,7 @@ from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication
 
 from umanager.backend.device import UsbBaseDeviceService, UsbStorageDeviceService
-from umanager.backend.filesystem.service import FileSystemService
+from umanager.backend.filesystem import FileSystemService
 from umanager.ui.views import RootWindowView
 
 if __name__ == "__main__":

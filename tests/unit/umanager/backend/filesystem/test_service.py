@@ -4,12 +4,12 @@ from pathlib import Path
 
 import pytest
 
-from umanager.backend.filesystem.protocol import (
+from umanager.backend.filesystem import (
     CopyOptions,
     DeleteOptions,
+    FileSystemService,
     ListOptions,
 )
-from umanager.backend.filesystem.service import FileSystemService
 
 
 @pytest.fixture

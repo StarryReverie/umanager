@@ -45,11 +45,11 @@ if __name__ == "__main__":
     sidebar.resize(300, 500)
 
     # 连接信号以查看行为
-    sidebar.overview_requested.connect(lambda: print("✓ 总览请求信号"))
-    sidebar.device_requested.connect(
+    sidebar.overviewRequested.connect(lambda: print("✓ 总览请求信号"))
+    sidebar.deviceRequested.connect(
         lambda device_id: print(f"✓ 设备请求信号: {device_id.instance_id}")
     )
-    sidebar.selection_changed.connect(
+    sidebar.selectionChanged.connect(
         lambda device_id: print(f"✓ 选中变化: {device_id.instance_id if device_id else '总览'}")
     )
 

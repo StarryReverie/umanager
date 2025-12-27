@@ -4,7 +4,7 @@ from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication
 
 from umanager.backend.device import UsbBaseDeviceService, UsbStorageDeviceService
-from umanager.backend.filesystem.service import FileSystemService
+from umanager.backend.filesystem import FileSystemService
 from umanager.ui.views import MainAreaView
 
 if __name__ == "__main__":
@@ -75,8 +75,8 @@ if __name__ == "__main__":
     sm.stateChanged.connect(on_state_changed)
 
     sidebar = main_area.sidebar_widget()
-    sidebar.overview_requested.connect(lambda: print("[Sidebar] overview_requested"))
-    sidebar.device_requested.connect(lambda dev_id: print(f"[Sidebar] device_requested: {dev_id}"))
+    sidebar.overviewRequested.connect(lambda: print("[Sidebar] overview_requested"))
+    sidebar.deviceRequested.connect(lambda dev_id: print(f"[Sidebar] device_requested: {dev_id}"))
 
     main_area.resize(1000, 650)
     main_area.show()

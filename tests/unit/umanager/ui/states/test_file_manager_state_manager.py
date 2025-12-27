@@ -6,7 +6,7 @@ from typing import Any, Callable
 import pytest
 from PySide6 import QtCore
 
-from umanager.backend.filesystem.protocol import (
+from umanager.backend.filesystem import (
     CopyOptions,
     DeleteOptions,
     FileEntry,

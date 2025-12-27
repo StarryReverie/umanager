@@ -39,11 +39,11 @@ class OverviewPageView(QWidget):
         self._state_manager.stateChanged.connect(self._on_state_changed)
         self._state_manager.detailsRequested.connect(self._on_details_requested)
 
-        self._button_bar.refresh_devices.connect(self._state_manager.refresh)
-        self._button_bar.view_details.connect(self._state_manager.request_details)
-        self._button_bar.eject_device.connect(self._state_manager.request_eject)
+        self._button_bar.refreshDevices.connect(self._state_manager.refresh)
+        self._button_bar.viewDetails.connect(self._state_manager.request_details)
+        self._button_bar.ejectDevice.connect(self._state_manager.request_eject)
 
-        self._device_list.selection_changed.connect(self._state_manager.set_selected_device)
+        self._device_list.selectionChanged.connect(self._state_manager.set_selected_device)
 
         layout = QVBoxLayout()
         layout.addWidget(self._title_bar)

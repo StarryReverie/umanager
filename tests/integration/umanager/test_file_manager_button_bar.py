@@ -10,19 +10,17 @@ if __name__ == "__main__":
     layout = QVBoxLayout(root)
 
     button_bar = FileManagerButtonBarWidget()
-    button_bar.refresh_requested.connect(lambda: print("Signal: refresh_requested"))
-    button_bar.create_requested.connect(lambda: print("Signal: create_requested"))
-    button_bar.create_directory_requested.connect(
-        lambda: print("Signal: create_directory_requested")
-    )
-    button_bar.open_requested.connect(lambda: print("Signal: open_requested"))
-    button_bar.copy_requested.connect(lambda: print("Signal: copy_requested"))
-    button_bar.cut_requested.connect(lambda: print("Signal: cut_requested"))
-    button_bar.paste_requested.connect(lambda: print("Signal: paste_requested"))
-    button_bar.delete_requested.connect(lambda: print("Signal: delete_requested"))
-    button_bar.rename_requested.connect(lambda: print("Signal: rename_requested"))
-    button_bar.show_hidden_toggled.connect(
-        lambda checked: print(f"Signal: show_hidden_toggled={checked}")
+    button_bar.refreshRequested.connect(lambda: print("Signal: refreshRequested"))
+    button_bar.createRequested.connect(lambda: print("Signal: createRequested"))
+    button_bar.createDirectoryRequested.connect(lambda: print("Signal: createDirectoryRequested"))
+    button_bar.openRequested.connect(lambda: print("Signal: openRequested"))
+    button_bar.copyRequested.connect(lambda: print("Signal: copyRequested"))
+    button_bar.cutRequested.connect(lambda: print("Signal: cutRequested"))
+    button_bar.pasteRequested.connect(lambda: print("Signal: pasteRequested"))
+    button_bar.deleteRequested.connect(lambda: print("Signal: deleteRequested"))
+    button_bar.renameRequested.connect(lambda: print("Signal: renameRequested"))
+    button_bar.showHiddenToggled.connect(
+        lambda checked: print(f"Signal: showHiddenToggled={checked}")
     )
 
     layout.addWidget(button_bar)

@@ -18,9 +18,7 @@ class FileManagerPathBarWidget(QWidget):
 
         self._go_up_btn = QToolButton(self)
         self._go_up_btn.setAutoRaise(True)
-        self._go_up_btn.setIcon(
-            self.style().standardIcon(QStyle.StandardPixmap.SP_DirHomeIcon)
-        )
+        self._go_up_btn.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_DirHomeIcon))
         self._go_up_btn.clicked.connect(self.go_up_requested.emit)
 
         self._path_label = QLabel(self)

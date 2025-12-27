@@ -9,19 +9,16 @@ import wmi
 from PySide6 import QtCore
 
 
-class _WmiVolumeChangeWorker(QtCore.QObject):
+class UsbDeviceChangeWatcher(QtCore.QObject):
     deviceChangeDetected = QtCore.Signal()
-    finished = QtCore.Signal()
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, *, parent: Optional[QtCore.QObject] = None) -> None:
+        super().__init__(parent)
         self._stop_event = threading.Event()
+        self._thread: Optional[threading.Thread] = None
+        self._started = False
 
-    def stop(self) -> None:
-        self._stop_event.set()
-
-    @QtCore.Slot()
-    def run(self) -> None:
+    def _run(self) -> None:
         pythoncom.CoInitialize()
         try:
             provider = wmi.WMI()
@@ -32,7 +29,7 @@ class _WmiVolumeChangeWorker(QtCore.QObject):
 
             while not self._stop_event.is_set():
                 try:
-                    _event = watcher(timeout_ms=1000)
+                    _event = watcher(timeout_ms=250)
                 except wmi.x_wmi_timed_out:
                     continue
                 except Exception:
@@ -48,35 +45,24 @@ class _WmiVolumeChangeWorker(QtCore.QObject):
             except Exception:
                 pass
 
-            self.finished.emit()
-
-
-class UsbDeviceChangeWatcher(QtCore.QObject):
-    deviceChangeDetected = QtCore.Signal()
-
-    def __init__(self, *, parent: Optional[QtCore.QObject] = None) -> None:
-        super().__init__(parent)
-        self._thread = QtCore.QThread(self)
-        self._worker = _WmiVolumeChangeWorker()
-        self._worker.moveToThread(self._thread)
-
-        self._thread.started.connect(self._worker.run)
-        self._worker.deviceChangeDetected.connect(self.deviceChangeDetected)
-        self._worker.finished.connect(self._thread.quit)
-        self._thread.finished.connect(self._worker.deleteLater)
-
-        self._started = False
-
     def start(self) -> None:
         if self._started:
             return
         self._started = True
+        self._stop_event.clear()
+        self._thread = threading.Thread(
+            target=self._run, name="UsbDeviceChangeWatcher", daemon=True
+        )
         self._thread.start()
 
     def stop(self) -> None:
         if not self._started:
             return
-        self._worker.stop()
-        self._thread.quit()
-        self._thread.wait(2500)
+        self._stop_event.set()
+
+        thread = self._thread
+        if thread is not None and thread.is_alive():
+            thread.join(timeout=3.0)
+
+        self._thread = None
         self._started = False

@@ -7,6 +7,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 
 from umanager.backend.filesystem.protocol import FileEntry
 from umanager.ui.states import FileManagerState, FileManagerStateManager
+from umanager.util import format_size
 
 
 class _FileEntryTableModel(QtCore.QAbstractTableModel):
@@ -32,7 +33,7 @@ class _FileEntryTableModel(QtCore.QAbstractTableModel):
             fm.horizontalAdvance("类型"),
         )
         size_width = max(
-            fm.horizontalAdvance("9999999999"),
+            fm.horizontalAdvance("999.9 GB"),
             fm.horizontalAdvance("大小"),
         )
         modified_width = max(
@@ -115,7 +116,7 @@ class _FileEntryTableModel(QtCore.QAbstractTableModel):
                     return f"{ext.lstrip('.')} 文件"
                 return "文件"
             if column == 2:
-                return "" if entry.is_dir else str(entry.size)
+                return "" if entry.is_dir else format_size(entry.size)
             if column == 3:
                 return "" if entry.mtime is None else entry.mtime.strftime("%Y-%m-%d %H:%M:%S")
             return None

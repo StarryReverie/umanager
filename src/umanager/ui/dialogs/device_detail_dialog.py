@@ -5,6 +5,7 @@ from typing import Optional
 from PySide6.QtWidgets import QDialog, QDialogButtonBox, QLabel, QVBoxLayout
 
 from umanager.backend.device import UsbBaseDeviceInfo, UsbStorageDeviceInfo, UsbVolumeInfo
+from umanager.util import format_size
 
 
 class DeviceDetailDialog(QDialog):
@@ -52,8 +53,7 @@ class DeviceDetailDialog(QDialog):
     def _fmt_bytes(val: Optional[int]) -> str:
         if val is None:
             return "-"
-        gb = val / (1024**3)
-        return f"{gb:.1f} GB"
+        return format_size(val)
 
     def _build_base_lines(self, base: UsbBaseDeviceInfo) -> list[tuple[str, str]]:
         return [

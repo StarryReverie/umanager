@@ -6,6 +6,7 @@ from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt, Signal
 from PySide6.QtWidgets import QHeaderView, QTableView, QVBoxLayout, QWidget
 
 from umanager.backend.device import UsbBaseDeviceInfo, UsbStorageDeviceInfo, UsbVolumeInfo
+from umanager.util import format_size
 
 DeviceRow = Tuple[UsbBaseDeviceInfo, Optional[UsbStorageDeviceInfo]]
 DeviceItem = Union[UsbBaseDeviceInfo, UsbStorageDeviceInfo]
@@ -22,7 +23,7 @@ class _DeviceInfoTableModel(QAbstractTableModel):
             ("序列号", lambda d: d[0].serial_number or ""),
             ("卷标", self._format_volume_labels),
             ("速度 (Mbps)", self._format_speed),
-            ("剩余容量/总容量 (GB)", self._format_capacity),
+            ("剩余容量/总容量", self._format_capacity),
         ]
 
     @staticmethod
@@ -46,9 +47,9 @@ class _DeviceInfoTableModel(QAbstractTableModel):
         capacity_strs: list[str] = []
         for v in volumes:
             if v.free_bytes is not None and v.total_bytes is not None:
-                free_gb = _bytes_to_gb_str(v.free_bytes)
-                total_gb = _bytes_to_gb_str(v.total_bytes)
-                capacity_strs.append(f"{free_gb}/{total_gb}")
+                free_text = format_size(v.free_bytes)
+                total_text = format_size(v.total_bytes)
+                capacity_strs.append(f"{free_text}/{total_text}")
         return ", ".join(capacity_strs)
 
     def rowCount(self, parent: QModelIndex | None = None) -> int:  # type: ignore[override]
@@ -137,11 +138,6 @@ class DeviceInfoListWidget(QWidget):
     def _on_selection_changed(self) -> None:
         base, storage = self.current_device()
         self.selection_changed.emit(base, storage)
-
-
-def _bytes_to_gb_str(value: int) -> str:
-    gb = value / (1024**3)
-    return f"{gb:.1f}"
 
 
 def _safe_volumes(volumes: Optional[list[UsbVolumeInfo]]) -> list[UsbVolumeInfo]:

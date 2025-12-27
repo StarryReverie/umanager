@@ -7,6 +7,7 @@ from PySide6.QtWidgets import QHBoxLayout, QSizePolicy, QStyle, QToolButton, QWi
 
 
 class FileManagerButtonBarWidget(QWidget):
+    refresh_requested = Signal()
     create_requested = Signal()
     create_directory_requested = Signal()
     open_requested = Signal()
@@ -22,6 +23,13 @@ class FileManagerButtonBarWidget(QWidget):
         style = self.style()
 
         button_style = Qt.ToolButtonStyle.ToolButtonTextBesideIcon
+
+        self._refresh_btn = QToolButton(self)
+        self._refresh_btn.setIcon(style.standardIcon(QStyle.StandardPixmap.SP_BrowserReload))
+        self._refresh_btn.setText("刷新")
+        self._refresh_btn.setToolButtonStyle(button_style)
+        self._refresh_btn.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self._refresh_btn.setAutoRaise(True)
 
         self._create_btn = QToolButton(self)
         self._create_btn.setIcon(style.standardIcon(QStyle.StandardPixmap.SP_FileIcon))
@@ -79,6 +87,7 @@ class FileManagerButtonBarWidget(QWidget):
         self._rename_btn.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self._rename_btn.setAutoRaise(True)
 
+        self._refresh_btn.clicked.connect(self.refresh_requested.emit)
         self._create_btn.clicked.connect(self.create_requested.emit)
         self._create_dir_btn.clicked.connect(self.create_directory_requested.emit)
         self._open_btn.clicked.connect(self.open_requested.emit)
@@ -92,6 +101,7 @@ class FileManagerButtonBarWidget(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        layout.addWidget(self._refresh_btn)
         layout.addWidget(self._create_btn)
         layout.addWidget(self._create_dir_btn)
         layout.addWidget(self._open_btn)

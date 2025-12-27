@@ -40,6 +40,7 @@ class FileManagerPageView(QWidget):
         self._path_bar.go_up_requested.connect(self._state_manager.go_up)
         self._state_manager.stateChanged.connect(self._on_state_changed)
 
+        self._button_bar.refresh_requested.connect(self._state_manager.refresh)
         self._button_bar.create_requested.connect(self._state_manager.request_create_file)
         self._button_bar.create_directory_requested.connect(
             self._state_manager.request_create_directory

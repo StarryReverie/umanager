@@ -34,8 +34,8 @@ if __name__ == "__main__":
 
     widget = DeviceInfoListWidget()
     widget.set_devices(devices)
-    widget.device_activated.connect(lambda base, storage: print("activated:", base, storage))
-    widget.selection_changed.connect(lambda base, storage: print("selected:", base, storage))
+    widget.deviceActivated.connect(lambda base, storage: print("activated:", base, storage))
+    widget.selectionChanged.connect(lambda base, storage: print("selected:", base, storage))
 
     layout.addWidget(widget)
     root.setLayout(layout)

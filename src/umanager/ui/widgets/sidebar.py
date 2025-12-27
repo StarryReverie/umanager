@@ -9,9 +9,9 @@ from umanager.backend.device import UsbDeviceId, UsbStorageDeviceInfo
 
 
 class SidebarWidget(QWidget):
-    overview_requested = Signal()
-    device_requested = Signal(object)  # UsbDeviceId
-    selection_changed = Signal(object)  # Optional[UsbDeviceId]
+    overviewRequested = Signal()
+    deviceRequested = Signal(object)  # UsbDeviceId
+    selectionChanged = Signal(object)  # Optional[UsbDeviceId]
 
     _OVERVIEW_KEY = "__overview__"
 
@@ -73,13 +73,13 @@ class SidebarWidget(QWidget):
     def _on_item_clicked(self, item: QListWidgetItem) -> None:
         key = item.data(Qt.UserRole)
         if key == self._OVERVIEW_KEY:
-            self.overview_requested.emit()
-            self.selection_changed.emit(None)
+            self.overviewRequested.emit()
+            self.selectionChanged.emit(None)
             return
 
         device_id = UsbDeviceId(instance_id=str(key))
-        self.device_requested.emit(device_id)
-        self.selection_changed.emit(device_id)
+        self.deviceRequested.emit(device_id)
+        self.selectionChanged.emit(device_id)
 
     def _current_device_key(self) -> Optional[str]:
         selected = self._list.selectedItems()

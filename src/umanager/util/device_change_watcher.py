@@ -10,7 +10,7 @@ from PySide6 import QtCore
 
 
 class _WmiVolumeChangeWorker(QtCore.QObject):
-    device_change_detected = QtCore.Signal()
+    deviceChangeDetected = QtCore.Signal()
     finished = QtCore.Signal()
 
     def __init__(self) -> None:
@@ -41,7 +41,7 @@ class _WmiVolumeChangeWorker(QtCore.QObject):
                     time.sleep(0.5)
                     continue
 
-                self.device_change_detected.emit()
+                self.deviceChangeDetected.emit()
         finally:
             try:
                 pythoncom.CoUninitialize()
@@ -52,12 +52,6 @@ class _WmiVolumeChangeWorker(QtCore.QObject):
 
 
 class UsbDeviceChangeWatcher(QtCore.QObject):
-    """WMI-based watcher that emits a signal when USB storage devices change.
-
-    Runs WMI event listening on a dedicated QThread, then emits `deviceChangeDetected`
-    on the Qt signal/slot system (queued back to the main thread when connected).
-    """
-
     deviceChangeDetected = QtCore.Signal()
 
     def __init__(self, *, parent: Optional[QtCore.QObject] = None) -> None:
@@ -67,7 +61,7 @@ class UsbDeviceChangeWatcher(QtCore.QObject):
         self._worker.moveToThread(self._thread)
 
         self._thread.started.connect(self._worker.run)
-        self._worker.device_change_detected.connect(self.deviceChangeDetected)
+        self._worker.deviceChangeDetected.connect(self.deviceChangeDetected)
         self._worker.finished.connect(self._thread.quit)
         self._thread.finished.connect(self._worker.deleteLater)
 

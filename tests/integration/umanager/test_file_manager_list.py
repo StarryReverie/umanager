@@ -5,7 +5,7 @@ from pathlib import Path
 
 from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
 
-from umanager.backend.filesystem.service import FileSystemService
+from umanager.backend.filesystem import FileSystemService
 from umanager.ui.states import FileManagerStateManager
 from umanager.ui.widgets import FileManagerListWidget
 

@@ -12,7 +12,7 @@ if __name__ == "__main__":
     layout = QVBoxLayout(root)
 
     path_bar = FileManagerPathBarWidget()
-    path_bar.go_up_requested.connect(lambda: print("Signal: go_up_requested"))
+    path_bar.goUpRequested.connect(lambda: print("Signal: goUpRequested"))
     path_bar.set_path(Path.home() / "Projects" / "umanager" / "some" / "very" / "long" / "path")
 
     layout.addWidget(path_bar)

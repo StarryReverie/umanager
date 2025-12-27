@@ -9,7 +9,7 @@ from PySide6.QtWidgets import QHBoxLayout, QLabel, QStyle, QToolButton, QWidget
 
 
 class FileManagerPathBarWidget(QWidget):
-    go_up_requested = Signal()
+    goUpRequested = Signal()
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -19,7 +19,7 @@ class FileManagerPathBarWidget(QWidget):
         self._go_up_btn = QToolButton(self)
         self._go_up_btn.setAutoRaise(True)
         self._go_up_btn.setIcon(self.style().standardIcon(QStyle.StandardPixmap.SP_DirHomeIcon))
-        self._go_up_btn.clicked.connect(self.go_up_requested.emit)
+        self._go_up_btn.clicked.connect(self.goUpRequested.emit)
 
         self._path_label = QLabel(self)
         self._path_label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)

@@ -6,7 +6,7 @@ from typing import Optional
 from PySide6.QtCore import Signal, Slot
 from PySide6.QtWidgets import QInputDialog, QVBoxLayout, QWidget
 
-from umanager.backend.filesystem.protocol import FileEntry, FileSystemProtocol
+from umanager.backend.filesystem import FileEntry, FileSystemProtocol
 from umanager.ui.dialogs import CreateFileDialog
 from umanager.ui.states import FileManagerState, FileManagerStateManager
 from umanager.ui.widgets import (
@@ -42,24 +42,24 @@ class FileManagerPageView(QWidget):
         layout.addWidget(self._file_list, 1)
         self.setLayout(layout)
 
-        self._path_bar.go_up_requested.connect(self._state_manager.go_up)
+        self._path_bar.goUpRequested.connect(self._state_manager.go_up)
         self._state_manager.stateChanged.connect(self._on_state_changed)
 
         if self._use_unified_refresh:
-            self._button_bar.refresh_requested.connect(self.refresh_all_requested.emit)
+            self._button_bar.refreshRequested.connect(self.refresh_all_requested.emit)
         else:
-            self._button_bar.refresh_requested.connect(self._state_manager.refresh)
-        self._button_bar.create_requested.connect(self._state_manager.request_create_file)
-        self._button_bar.create_directory_requested.connect(
+            self._button_bar.refreshRequested.connect(self._state_manager.refresh)
+        self._button_bar.createRequested.connect(self._state_manager.request_create_file)
+        self._button_bar.createDirectoryRequested.connect(
             self._state_manager.request_create_directory
         )
-        self._button_bar.open_requested.connect(self._state_manager.enter_selected)
-        self._button_bar.copy_requested.connect(self._state_manager.copy_selected)
-        self._button_bar.cut_requested.connect(self._state_manager.cut_selected)
-        self._button_bar.paste_requested.connect(self._state_manager.paste)
-        self._button_bar.delete_requested.connect(self._state_manager.delete_selected)
-        self._button_bar.rename_requested.connect(self._state_manager.request_rename_selected)
-        self._button_bar.show_hidden_toggled.connect(self._state_manager.set_show_hidden)
+        self._button_bar.openRequested.connect(self._state_manager.enter_selected)
+        self._button_bar.copyRequested.connect(self._state_manager.copy_selected)
+        self._button_bar.cutRequested.connect(self._state_manager.cut_selected)
+        self._button_bar.pasteRequested.connect(self._state_manager.paste)
+        self._button_bar.deleteRequested.connect(self._state_manager.delete_selected)
+        self._button_bar.renameRequested.connect(self._state_manager.request_rename_selected)
+        self._button_bar.showHiddenToggled.connect(self._state_manager.set_show_hidden)
 
         self._state_manager.createFileDialogRequested.connect(self._on_create_file_dialog_requested)
         self._state_manager.createDirectoryDialogRequested.connect(
